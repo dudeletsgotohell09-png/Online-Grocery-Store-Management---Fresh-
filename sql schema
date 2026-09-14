@@ -1,0 +1,81 @@
+-- Fresh — database schema
+-- Import this file in phpMyAdmin, or run: mysql -u root -p < schema.sql
+
+CREATE DATABASE IF NOT EXISTS fresh_grocery;
+USE fresh_grocery;
+
+-- ---------------------------------------------------------------
+-- Users (customers + admins)
+-- ---------------------------------------------------------------
+CREATE TABLE IF NOT EXISTS users (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(100) NOT NULL,
+    email VARCHAR(150) NOT NULL UNIQUE,
+    password VARCHAR(255) NOT NULL,
+    role ENUM('customer','admin') NOT NULL DEFAULT 'customer',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Demo accounts
+-- Customer -> customer@demo.com / demo123
+-- Admin    -> admin@demo.com    / admin123
+-- (passwords below are already hashed with PHP's password_hash())
+INSERT INTO users (name, email, password, role) VALUES
+('Demo Customer', 'customer@demo.com', '$2y$10$yh19LjtE7RLUCa7BMUmW9.QIVqWFbyYDnrGd8.qZrlIBN2Hn2DtKG', 'customer'),
+('Store Admin',   'admin@demo.com',    '$2y$10$qU4fpCp9fpT38N1C9RHSnuXRUiSEiMi33LziE4H94NJHx76QfBnb.', 'admin');
+
+-- ---------------------------------------------------------------
+-- Products (used by the dashboard stat cards, and later the catalog)
+-- ---------------------------------------------------------------
+CREATE TABLE IF NOT EXISTS products (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(100) NOT NULL,
+    category VARCHAR(50) NOT NULL,
+    icon VARCHAR(10) DEFAULT '🛒',
+    description VARCHAR(255),
+    price DECIMAL(10,2) NOT NULL,
+    unit VARCHAR(30) DEFAULT 'each',
+    stock INT NOT NULL DEFAULT 0,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+INSERT INTO products (name, category, icon, description, price, unit, stock) VALUES
+('Vine Tomatoes', 'Fruits & Veg', '🍅', 'Juicy, vine-ripened tomatoes.', 320, 'per kg', 42),
+('Cavendish Bananas', 'Fruits & Veg', '🍌', 'Sweet ripe bananas.', 180, 'per kg', 60),
+('Baby Spinach', 'Fruits & Veg', '🥬', 'Tender washed spinach leaves.', 210, 'per bunch', 8),
+('Full Cream Milk', 'Dairy & Eggs', '🥛', 'Farm fresh full cream milk.', 410, '1L', 35),
+('Free-range Eggs', 'Dairy & Eggs', '🥚', 'Free-range eggs, tray of 10.', 590, 'tray of 10', 20),
+('Cheddar Block', 'Dairy & Eggs', '🧀', 'Matured cheddar cheese block.', 940, '200g', 0),
+('Sourdough Loaf', 'Bakery', '🍞', 'Freshly baked sourdough loaf.', 450, 'each', 14),
+('Butter Croissants', 'Bakery', '🥐', 'Flaky butter croissants.', 150, 'each', 26),
+('Basmati Rice', 'Pantry', '🍚', 'Aged long-grain basmati rice.', 980, '5kg bag', 18),
+('Olive Oil', 'Pantry', '🫒', 'Extra virgin cold-pressed olive oil.', 1450, '1L', 6),
+('Orange Juice', 'Beverages', '🧃', '100% pure orange juice, no added sugar.', 390, '1L', 22),
+('Roasted Cashews', 'Snacks', '🥜', 'Lightly salted roasted cashews.', 680, '200g', 30);
+
+-- ---------------------------------------------------------------
+-- Orders + order items (used by dashboard stat cards, built out fully later)
+-- ---------------------------------------------------------------
+CREATE TABLE IF NOT EXISTS orders (
+    id VARCHAR(20) PRIMARY KEY,
+    user_id INT NOT NULL,
+    customer_name VARCHAR(100),
+    address VARCHAR(255),
+    subtotal DECIMAL(10,2) NOT NULL,
+    delivery_fee DECIMAL(10,2) NOT NULL DEFAULT 250,
+    total DECIMAL(10,2) NOT NULL,
+    status ENUM('Processing','Shipped','Delivered') NOT NULL DEFAULT 'Processing',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES users(id)
+);
+
+CREATE TABLE IF NOT EXISTS order_items (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    order_id VARCHAR(20) NOT NULL,
+    product_id INT,
+    product_name VARCHAR(100) NOT NULL,
+    price DECIMAL(10,2) NOT NULL,
+    qty INT NOT NULL,
+    FOREIGN KEY (order_id) REFERENCES orders(id) ON DELETE CASCADE,
+    FOREIGN KEY (product_id) REFERENCES products(id)
+);
