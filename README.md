@@ -1,61 +1,8 @@
-# Fresh — Online Grocery Store Management System (CS12012, polished + extended edition)
+# Fresh — Online Grocery Store Management System
 
 HTML + CSS + JavaScript + PHP + MySQL only. No frameworks or external libraries.
 
-This is the **polished + extended** version of the original project. The visual
-design and layout are unchanged; the changes focus on **security, missing features,
-bug fixes, and now five additional feature areas**:
-
-1. **Product image uploads** (replaces emoji-only products)
-2. **Email sending** (password resets + order confirmations)
-3. **Search autocomplete** (live product suggestions in the search box)
-4. **Pagination on the shop page** (12 products per page)
-5. **PWA / offline support** (installable app + service worker caching)
-
-## Run it (XAMPP / WAMP)
-1. Copy the `fresh-grocery` folder into `C:\xampp\htdocs\`.
-2. Start **Apache** and **MySQL** in the XAMPP control panel.
-3. Open http://localhost/phpmyadmin → **Import** → choose `schema.sql` → Go.
-   (drops the old DB and recreates `fresh_grocery` with all new tables and demo data)
-4. Make the `uploads/` folder writable by PHP:
-   - On Windows: usually no action needed.
-   - On Linux/Mac: `chmod -R 775 uploads/`
-5. Open http://localhost/fresh-grocery/login.php
-6. If your MySQL has a password, edit `config.php`.
-
-Importing from the command line instead of phpMyAdmin? Use
-`mysql --default-character-set=utf8mb4 -u root < schema.sql`
-(without that flag the emoji icons are stored garbled).
-
-Local testing: `MAIL_LOG_ONLY` is `true` in `config.php`, so no mail server is needed.
-Password-reset links are shown on screen; set it to `false` only on a real server.
-
-Demo logins (also listed in schema.sql):
-- Customer: `customer@demo.com` / `demo123`
-- Admin:    `admin@demo.com` / `admin123`
-
-Coupon codes to try at checkout:
-- `FRESH100`  → Rs. 100 off orders over Rs. 1,000
-- `WELCOME10` → 10% off orders over Rs. 500
-
-## What's new in this extended edition (5 features)
-
-### 1. Product image uploads
-- New `image` column on the `products` table.
-- Admin can upload a JPEG / PNG / WebP / GIF (max 2 MB) per product.
-- Image is validated server-side via `finfo_file()` (MIME sniffing, not the
-  client-supplied `$_FILES['type']`).
-- Saved to `uploads/` with a randomised name; the previous file is deleted on
-  replacement. There's a "Remove current image" checkbox too.
-- The `uploads/` directory has an `.htaccess` that blocks direct execution of
-  any PHP files (so even if someone uploads a `.php` disguised as a JPEG, it
-  can't run).
-- Everywhere a product is shown — shop, product detail, cart, customer
-  dashboard, admin inventory table, admin dashboard low-stock & top-sellers —
-  the image is rendered if present, otherwise the emoji icon is used. The
-  fallback is automatic via the shared `product_visual()` helper.
-
-### 2. Email sending
+### Email sending
 - New `includes/mail.php` wraps PHP's built-in `mail()` with a branded HTML
   template.
 - `forgot_password.php` now sends an actual password-reset email with a
@@ -69,7 +16,7 @@ Coupon codes to try at checkout:
 - `base_url()` is auto-detected so absolute links in emails work regardless of
   where you host the app.
 
-### 3. Search autocomplete
+### Search autocomplete
 - New `api/search.php` returns up to 8 matching products as JSON (with image
   URL, price, category, in-stock status).
 - The header search box on every customer page now shows a live dropdown as you
@@ -79,7 +26,7 @@ Coupon codes to try at checkout:
 - The dropdown shows product image thumbnails, name, category, price, and an
   "Out of stock" badge when applicable.
 
-### 4. Pagination on the shop page
+### Pagination on the shop page
 - 12 products per page (`PRODUCTS_PER_PAGE` in `config.php`).
 - A clean pagination control with ellipses (… for skipped page numbers) appears
   below the product grid when there's more than one page.
@@ -87,7 +34,7 @@ Coupon codes to try at checkout:
   preserved when paging.
 - The result count shows "12 products · page 2 of 5" style messaging.
 
-### 5. PWA / offline support
+### PWA / offline support
 - `manifest.json` declares the app as installable (name, icons, theme color,
   start_url, shortcuts to Shop / Cart / Orders).
 - Four PWA icons generated as PNGs at 192px and 512px (regular + maskable).
@@ -205,22 +152,6 @@ fresh-grocery/
 - Layout is responsive: phone (≤720px), tablet (≤900px) and desktop. On phones
   the top bar becomes brand + buttons, nav links and search; admin tables turn
   into stacked cards.
-
-## Notes for graders
-- No external CSS or JS libraries are used (no jQuery, Bootstrap, Chart.js,
-  PHPMailer, etc.). The sales chart is a pure CSS bar chart; toasts, AJAX,
-  and autocomplete use plain `XMLHttpRequest`; email uses PHP's built-in
-  `mail()`; PWA icons are PNGs generated with Python+PIL.
-- All database writes use **prepared statements** with bound parameters.
-- Output is escaped with `htmlspecialchars()` (via the `h()` helper) to
-  prevent XSS.
-- File uploads are validated by MIME type via `finfo_file()`, restricted to
-  JPEG/PNG/WebP/GIF, capped at 2 MB, and stored in a directory whose
-  `.htaccess` denies execution of any script files.
-- The mock payment at checkout is intentionally simple — no real card data is
-  stored.
-- For the PWA to be installable, the app must be served over HTTPS (or from
-  `localhost`). On XAMPP, `localhost` works for testing.
 
 ## Configurable constants (in config.php)
 | Constant | Default | Purpose |
