@@ -1,0 +1,8 @@
+# Block direct execution of any PHP files uploaded into this folder.
+# Image files (jpg/png/webp/gif) remain accessible so the <img> tags can load them.
+<FilesMatch "\.(php|php3|php4|php5|php7|phtml|phar|pl|py|cgi|asp|aspx|sh|exe)$">
+    Require all denied
+</FilesMatch>
+
+# Prevent directory listing.
+Options -Indexes
