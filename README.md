@@ -2,30 +2,6 @@
 
 HTML + CSS + JavaScript + PHP + MySQL only. No frameworks or external libraries.
 
-### Email sending
-- New `includes/mail.php` wraps PHP's built-in `mail()` with a branded HTML
-  template.
-- `forgot_password.php` now sends an actual password-reset email with a
-  clickable button. Order confirmation emails are sent from `checkout.php`.
-- For local development without SMTP, set `MAIL_LOG_ONLY = true` in `config.php`
-  (default). Every email body is written to PHP's `error_log` so you can read
-  the reset links and order confirmations during testing. The forgot-password
-  page also surfaces the reset link on screen in this mode.
-- For production, configure `php.ini`'s `[mail function]` (SMTP host, port,
-  `sendmail_from`), set `MAIL_LOG_ONLY = false`, and emails will actually be sent.
-- `base_url()` is auto-detected so absolute links in emails work regardless of
-  where you host the app.
-
-### Search autocomplete
-- New `api/search.php` returns up to 8 matching products as JSON (with image
-  URL, price, category, in-stock status).
-- The header search box on every customer page now shows a live dropdown as you
-  type (debounced 200 ms).
-- Keyboard navigation: ↑/↓ to move, Enter to go to the highlighted product,
-  Esc to close, Enter on empty dropdown to submit the full search to shop.php.
-- The dropdown shows product image thumbnails, name, category, price, and an
-  "Out of stock" badge when applicable.
-
 ### Pagination on the shop page
 - 12 products per page (`PRODUCTS_PER_PAGE` in `config.php`).
 - A clean pagination control with ellipses (… for skipped page numbers) appears
