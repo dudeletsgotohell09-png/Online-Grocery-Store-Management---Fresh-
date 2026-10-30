@@ -13,7 +13,7 @@
 define('DB_HOST', 'localhost');
 define('DB_NAME', 'fresh_grocery');
 define('DB_USER', 'root');
-define('DB_PASS', 'Navoda2004');
+define('DB_PASS', '');
 
 /* Free delivery threshold (Rs.) — orders at or above this get free shipping. */
 define('FREE_DELIVERY_THRESHOLD', 5000);
